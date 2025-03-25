@@ -33,16 +33,18 @@ const Board = ({ puzzle, solution, onCellSelect, selectedCell, gameMode, playerA
   
   const isSameValue = (rowIndex, colIndex, selectedRow, selectedCol) => {
     if (selectedRow === null || selectedCol === null) return false;
+    if (!playerAnswers || !puzzle) return false;
     
+    // Make sure both arrays exist and have the necessary structure
     const selectedCellValue = 
-      playerAnswers[selectedRow][selectedCol] || 
-      puzzle[selectedRow][selectedCol];
+      (playerAnswers[selectedRow] && playerAnswers[selectedRow][selectedCol]) || 
+      (puzzle[selectedRow] && puzzle[selectedRow][selectedCol]) || 0;
     
     if (!selectedCellValue) return false;
     
     const currentCellValue = 
-      playerAnswers[rowIndex][colIndex] || 
-      puzzle[rowIndex][colIndex];
+      (playerAnswers[rowIndex] && playerAnswers[rowIndex][colIndex]) || 
+      (puzzle[rowIndex] && puzzle[rowIndex][colIndex]) || 0;
     
     return selectedCellValue === currentCellValue && currentCellValue !== 0;
   };
@@ -56,8 +58,10 @@ const Board = ({ puzzle, solution, onCellSelect, selectedCell, gameMode, playerA
       {board.map((row, rowIndex) => (
         <React.Fragment key={`row-${rowIndex}`}>
           {row.map((cell, colIndex) => {
-            const isInitial = puzzle[rowIndex][colIndex] !== 0;
-            const value = playerAnswers[rowIndex][colIndex] || puzzle[rowIndex][colIndex];
+            const isInitial = puzzle && puzzle[rowIndex] && puzzle[rowIndex][colIndex] !== 0;
+            const value = 
+              (playerAnswers && playerAnswers[rowIndex] && playerAnswers[rowIndex][colIndex]) || 
+              (puzzle && puzzle[rowIndex] && puzzle[rowIndex][colIndex]) || 0;
             const isSelected = 
               selectedCell && 
               selectedCell.row === rowIndex && 
@@ -67,7 +71,9 @@ const Board = ({ puzzle, solution, onCellSelect, selectedCell, gameMode, playerA
               <Cell
                 key={`cell-${rowIndex}-${colIndex}`}
                 value={value}
-                notes={gameMode === 'notes' ? playerAnswers.notes?.[rowIndex]?.[colIndex] || [] : []}
+                notes={gameMode === 'notes' && playerAnswers && playerAnswers.notes 
+                  ? playerAnswers.notes[rowIndex]?.[colIndex] || [] 
+                  : []}
                 rowIndex={rowIndex}
                 colIndex={colIndex}
                 isInitial={isInitial}
